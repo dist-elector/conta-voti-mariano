@@ -212,6 +212,7 @@
 
         // Funzione per salvare i voti nel Realtime Database
         function saveVotesToFirebase(votes) {
+            console.log("Salvataggio su Firebase", votes); // Debug
             firebase.database().ref('voti/').set(votes);
         }
 
@@ -219,6 +220,7 @@
         function loadVotesFromFirebase() {
             firebase.database().ref('voti/').on('value', (snapshot) => {
                 const votes = snapshot.val();
+                console.log("Caricamento da Firebase", votes); // Debug
                 if (votes) {
                     document.getElementById('candidate1-count').textContent = votes.candidate1;
                     document.getElementById('candidate2-count').textContent = votes.candidate2;
@@ -251,12 +253,14 @@
 
         // Salva i voti nel localStorage e Firebase
         function saveVotes() {
+            console.log("Salvataggio dei voti", votes); // Debug
             localStorage.setItem('votes', JSON.stringify(votes));
             saveVotesToFirebase(votes);  // Salva i voti anche su Firebase
         }
 
         // Funzione per incrementare il conteggio
         function incrementVote(type) {
+            console.log("Incrementa", type); // Debug
             if (!isScrutinioTerminato) {
                 votes[type]++;
                 document.getElementById(type + '-count').textContent = votes[type];
@@ -268,6 +272,7 @@
 
         // Funzione per decrementare il conteggio
         function decrementVote(type) {
+            console.log("Decrementa", type); // Debug
             if (!isScrutinioTerminato && votes[type] > 0) {
                 votes[type]--;
                 document.getElementById(type + '-count').textContent = votes[type];
@@ -279,6 +284,7 @@
 
         // Funzione per resettare il conteggio
         function resetVotes() {
+            console.log("Reset voti"); // Debug
             for (const type in votes) {
                 votes[type] = 0;
                 document.getElementById(type + '-count').textContent = votes[type];
