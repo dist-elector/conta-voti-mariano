@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elezioni DIST - I scrutinio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .candidate, .others {
+            margin: 25px;
+        }
+        .quorum-section {
+            margin-bottom: 40px;
+        }
+        .note {
+            font-size: 12px;
+            color: gray;
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 20px 40px;
+            font-size: 20px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: lightgreen;
+        }
+        button:active {
+            background-color: green;
+        }
+        .count {
+            font-size: 20px;
+            margin: 0 15px;
+        }
+        .elected {
+            color: green;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .bold-uppercase {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .minus-button {
+            background-color: white;
+            color: red;
+            border: 2px solid red;
+            border-radius: 50%;
+            font-size: 20px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+        .minus-button:hover {
+            background-color: #fdd;
+        }
+        .minus-button:active {
+            background-color: lightcoral;
+        }
+        .reset-button {
+            margin-top: 40px;
+            background-color: white;
+            color: black;
+            border: 2px solid black;
+            border-radius: 10px;
+            font-size: 20px;
+            padding: 15px 30px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .reset-button:hover {
+            background-color: lightgray;
+        }
+        .reset-button:active {
+            background-color: red;
+            color: white;
+        }
+        .scrutinio {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+        .scrutinio-in-corso {
+            color: yellow;
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+        .scrutinio-terminato {
+            color: red;
+            font-weight: bold;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            button, .minus-button, .reset-button {
+                padding: 15px 30px;
+                font-size: 18px;
+                width: auto;
+            }
+            .count {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Elezioni DIST - I scrutinio</h1>
+
+    <!-- Sezione per il quorum (bloccato con valore 45) -->
+    <div class="quorum-section">
+        <label for="quorum">Quorum (non modificabile): </label>
+        <input type="number" id="quorum" value="45" disabled>
+    </div>
+
+    <!-- Nota sotto il quorum -->
+    <p class="note">
+        Nella prima votazione l'elezione avviene a maggioranza assoluta degli aventi diritto al voto (DR/2016/507 Art. 23)
+    </p>
+
+    <!-- Sezione per il primo candidato -->
+    <div class="row">
+        <span id="candidate1-name" class="bold-uppercase">prof. Iervolino</span>
+        <button class="plus-button" onclick="incrementVote('candidate1')">+1</button>
+        <span class="count" id="candidate1-count">0</span>
+        <button class="minus-button" onclick="decrementVote('candidate1')">-</button>
+        <span class="elected" id="candidate1-elected"></span>
+    </div>
+
+    <!-- Sezione per il secondo candidato -->
+    <div class="row">
+        <span id="candidate2-name" class="bold-uppercase">prof. Nigro</span>
+        <button class="plus-button" onclick="incrementVote('candidate2')">+1</button>
+        <span class="count" id="candidate2-count">0</span>
+        <button class="minus-button" onclick="decrementVote('candidate2')">-</button>
+        <span class="elected" id="candidate2-elected"></span>
+    </div>
+
+    <!-- Sezione per "Altri" -->
+    <div class="row">
+        <span>Altri</span>
+        <button class="plus-button" onclick="incrementVote('others')">+1</button>
+        <span class="count" id="others-count">0</span>
+        <button class="minus-button" onclick="decrementVote('others')">-</button>
+    </div>
+
+    <!-- Sezione per "Bianche" -->
+    <div class="row">
+        <span>Bianche</span>
+        <button class="plus-button" onclick="incrementVote('blank')">+1</button>
+        <span class="count" id="blank-count">0</span>
+        <button class="minus-button" onclick="decrementVote('blank')">-</button>
+    </div>
+
+    <!-- Sezione per "Nulle" -->
+    <div class="row">
+        <span>Nulle</span>
+        <button class="plus-button" onclick="incrementVote('null')">+1</button>
+        <span class="count" id="null-count">0</span>
+        <button class="minus-button" onclick="decrementVote('null')">-</button>
+    </div>
+
+    <!-- Sezione per i voti scrutinati -->
+    <div class="others">
+        <h3>Voti scrutinati: <span id="total-votes">0</span></h3>
+    </div>
+
+    <!-- Scritta per la data o per lo scrutinio -->
+    <div class="scrutinio" id="scrutinio-text">
+        15 ottobre - ore 17
+    </div>
+
+    <!-- Pulsante per resettare il conteggio -->
+    <button class="reset-button" onclick="resetVotes()">Azzera conteggio</button>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js"></script>
+
+    <script>
+        // La tua configurazione di Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBG1SiiK7T-3n5oBcW718Jx-YYWkai45p0",
+            authDomain: "elezioni-dist.firebaseapp.com",
+            databaseURL: "https://elezioni-dist-default-rtdb.firebaseio.com",
+            projectId: "elezioni-dist",
+            storageBucket: "elezioni-dist.appspot.com",
+            messagingSenderId: "806734605781",
+            appId: "1:806734605781:web:6acdd33c8f7fd97995215c",
+            measurementId: "G-4SFRRPJPLS"
+        };
+
+        // Inizializza Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Funzione per salvare i voti nel Realtime Database
+        function saveVotesToFirebase(votes) {
+            firebase.database().ref('voti/').set(votes);
+        }
+
+        // Funzione per recuperare i voti dal Realtime Database
+        function loadVotesFromFirebase() {
+            firebase.database().ref('voti/').on('value', (snapshot) => {
+                const votes = snapshot.val();
+                if (votes) {
+                    document.getElementById('candidate1-count').textContent = votes.candidate1;
+                    document.getElementById('candidate2-count').textContent = votes.candidate2;
+                    document.getElementById('others-count').textContent = votes.others;
+                    document.getElementById('blank-count').textContent = votes.blank;
+                    document.getElementById('null-count').textContent = votes.null;
+                    updateTotalVotes();
+                }
+            });
+        }
+
+        // Recupera i voti dal localStorage o imposta i valori iniziali
+        const votes = JSON.parse(localStorage.getItem('votes')) || {
+            candidate1: 0,
+            candidate2: 0,
+            others: 0,
+            blank: 0,
+            null: 0
+        };
+
+        // Inizializza i voti dai dati salvati
+        function initializeVotes() {
+            for (const type in votes) {
+                document.getElementById(type + '-count').textContent = votes[type];
+            }
+            updateTotalVotes();
+            checkQuorum();
+            checkScrutinioStatus();
+        }
+
+        // Salva i voti nel localStorage e Firebase
+        function saveVotes() {
+            localStorage.setItem('votes', JSON.stringify(votes));
+            saveVotesToFirebase(votes);  // Salva i voti anche su Firebase
+        }
+
+        // Funzione per incrementare il conteggio
+        function incrementVote(type) {
+            if (!isScrutinioTerminato) {
+                votes[type]++;
+                document.getElementById(type + '-count').textContent = votes[type];
+                checkQuorum();
+                updateTotalVotes();
+                saveVotes(); 
+            }
+        }
+
+        // Funzione per decrementare il conteggio
+        function decrementVote(type) {
+            if (!isScrutinioTerminato && votes[type] > 0) {
+                votes[type]--;
+                document.getElementById(type + '-count').textContent = votes[type];
+                checkQuorum();
+                updateTotalVotes();
+                saveVotes(); 
+            }
+        }
+
+        // Funzione per resettare il conteggio
+        function resetVotes() {
+            for (const type in votes) {
+                votes[type] = 0;
+                document.getElementById(type + '-count').textContent = votes[type];
+            }
+            document.querySelectorAll('.elected').forEach(el => el.textContent = ''); // Rimuove "ELETTO"
+            isScrutinioTerminato = false; // Sblocca i voti
+            checkScrutinioStatus(); // Ripristina la scritta corretta
+            updateTotalVotes();
+            saveVotes();
+        }
+
+        // Funzione per verificare se il quorum è stato raggiunto
+        function checkQuorum() {
+            const quorum = document.getElementById('quorum').value;
+
+            if (votes.candidate1 >= quorum) {
+                document.getElementById('candidate1-elected').textContent = 'ELETTO';
+            } else {
+                document.getElementById('candidate1-elected').textContent = '';
+            }
+
+            if (votes.candidate2 >= quorum) {
+                document.getElementById('candidate2-elected').textContent = 'ELETTO';
+            } else {
+                document.getElementById('candidate2-elected').textContent = '';
+            }
+        }
+
+        // Funzione per aggiornare il totale dei voti scrutinati
+        function updateTotalVotes() {
+            const totalVotes = votes.candidate1 + votes.candidate2 + votes.others + votes.blank + votes.null;
+            document.getElementById('total-votes').textContent = totalVotes;
+
+            if (totalVotes === 88) {
+                document.getElementById('scrutinio-text').textContent = 'SCRUTINIO TERMINATO';
+                document.getElementById('scrutinio-text').className = 'scrutinio-terminato';
+                isScrutinioTerminato = true; // Blocca i voti
+            }
+        }
+
+        // Funzione per verificare e aggiornare la scritta del quorum in base alla data
+        function checkScrutinioStatus() {
+            const currentDate = new Date();
+            const targetDate = new Date('2024-10-15T17:00:00');
+
+            if (currentDate >= targetDate) {
+                document.getElementById('scrutinio-text').textContent = 'SCRUTINIO IN CORSO';
+                document.getElementById('scrutinio-text').className = 'scrutinio-in-corso';
+            } else {
+                document.getElementById('scrutinio-text').textContent = '15 ottobre - ore 17';
+            }
+        }
+
+        // Inizializza la pagina con i voti salvati e Firebase
+        window.onload = function() {
+            initializeVotes();
+            loadVotesFromFirebase();
+        };
+    </script>
+</body>
+</html>
