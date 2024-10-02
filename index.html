@@ -189,26 +189,26 @@
     <!-- Pulsante per resettare il conteggio -->
     <button class="reset-button" onclick="resetVotes()">Azzera conteggio</button>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js"></script>
+<!-- Firebase SDK compatibile senza moduli -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script>
-        // La tua configurazione di Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBG1SiiK7T-3n5oBcW718Jx-YYWkai45p0",
-            authDomain: "elezioni-dist.firebaseapp.com",
-            databaseURL: "https://elezioni-dist-default-rtdb.firebaseio.com",
-            projectId: "elezioni-dist",
-            storageBucket: "elezioni-dist.appspot.com",
-            messagingSenderId: "806734605781",
-            appId: "1:806734605781:web:6acdd33c8f7fd97995215c",
-            measurementId: "G-4SFRRPJPLS"
-        };
+<script>
+  // La tua configurazione di Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyBG1SiiK7T-3n5oBcW718Jx-YYWkai45p0",
+    authDomain: "elezioni-dist.firebaseapp.com",
+    databaseURL: "https://elezioni-dist-default-rtdb.firebaseio.com",
+    projectId: "elezioni-dist",
+    storageBucket: "elezioni-dist.appspot.com",
+    messagingSenderId: "806734605781",
+    appId: "1:806734605781:web:6acdd33c8f7fd97995215c",
+    measurementId: "G-4SFRRPJPLS"
+  };
 
-        // Inizializza Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+  // Inizializza Firebase
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
 
         // Funzione per salvare i voti nel Realtime Database
         function saveVotesToFirebase(votes) {
